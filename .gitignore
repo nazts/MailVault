@@ -1,0 +1,11 @@
+# ===== datos del usuario: NUNCA subir =====
+gestor_datos.enc        # caja cifrada con tus cuentas
+gestor_correos.db       # base vieja (texto plano)
+gestor_correos.db.bak
+*.db
+*.enc
+
+# ===== python =====
+__pycache__/
+*.pyc
+.venv/

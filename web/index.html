@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MailVault — tus cuentas de correo cifradas</title>
+<script>
+  // aplicar el tema guardado antes de pintar (evita parpadeo)
+  document.documentElement.setAttribute("data-bs-theme",
+    localStorage.getItem("tema") || "light");
+</script>
+<link rel="stylesheet" href="assets/bootstrap.min.css">
+<link rel="stylesheet" href="assets/bootstrap-icons.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="vista-login" class="min-vh-100 d-flex align-items-center justify-content-center">
+  <div class="card shadow tarjeta-login">
+    <div class="card-body p-4">
+      <div class="text-center mb-4">
+        <div class="icono-grande"><i class="bi bi-envelope-paper-heart"></i></div>
+        <h4 class="mb-1">MailVault</h4>
+        <div class="text-secondary small" id="login-subtitulo">Desbloquea tus cuentas</div>
+      </div>
+
+      <div id="form-entrar">
+        <label class="form-label small fw-semibold" for="clave-entrar">Clave de acceso</label>
+        <div class="input-group mb-2">
+          <input type="password" id="clave-entrar" class="form-control" placeholder="Escribe tu clave" autocomplete="off">
+          <button class="btn btn-primary" id="btn-entrar" type="button"><i class="bi bi-unlock"></i> Entrar</button>
+        </div>
+        <div class="text-danger small d-none" id="error-entrar"><i class="bi bi-exclamation-triangle"></i> Clave incorrecta</div>
+      </div>
+
+      <div id="form-crear" class="d-none">
+        <div class="alert alert-info small py-2">
+          <i class="bi bi-shield-lock"></i> Primera vez: crea una clave. Tus datos se cifran con ella y <b>no se pueden recuperar si la olvidas</b>.
+        </div>
+        <input type="password" id="clave-nueva" class="form-control mb-2" placeholder="Nueva clave (mín. 4 caracteres)" autocomplete="off">
+        <input type="password" id="clave-confirma" class="form-control mb-2" placeholder="Repite la clave" autocomplete="off">
+        <button class="btn btn-primary w-100" id="btn-crear" type="button"><i class="bi bi-shield-lock"></i> Crear y empezar</button>
+        <div class="text-danger small d-none mt-2" id="error-crear"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="vista-app" class="d-none">
+  <nav class="navbar navbar-expand border-bottom px-3">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h6"><i class="bi bi-envelope-paper-heart text-primary me-2"></i>MailVault</span>
+      <span class="badge border text-secondary me-auto" id="lbl-total">0 cuentas</span>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-outline-secondary" id="btn-tema" type="button" title="Cambiar tema (claro/oscuro)"><i class="bi bi-moon-stars"></i></button>
+        <button class="btn btn-sm btn-outline-secondary" id="btn-exportar" type="button" title="Exportar CSV"><i class="bi bi-download"></i> CSV</button>
+        <button class="btn btn-sm btn-outline-secondary" id="btn-clave" type="button" title="Cambiar clave"><i class="bi bi-key"></i></button>
+        <button class="btn btn-sm btn-outline-secondary" id="btn-cerrar" type="button" title="Bloquear"><i class="bi bi-lock"></i></button>
+        <button class="btn btn-sm btn-primary" id="btn-nueva" type="button"><i class="bi bi-person-plus"></i> Nueva cuenta</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container-fluid px-4 py-3">
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <div class="input-group mb-2">
+          <span class="input-group-text"><i class="bi bi-search text-secondary"></i></span>
+          <input type="text" id="campo-buscar" class="form-control" placeholder="Buscar por nombre, correo, usuario, servidor o notas…">
+        </div>
+        <div class="card shadow-sm">
+          <div class="table-responsive" style="max-height: 60vh">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th class="text-center cursor-puntero" data-col="nombre">Cuenta <span class="indicador"></span></th>
+                  <th class="text-center cursor-puntero" data-col="correo">Correo <span class="indicador"></span></th>
+                  <th class="text-center" style="width: 130px">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-cuentas"></tbody>
+            </table>
+          </div>
+          <div class="card-footer small text-secondary py-2" id="lbl-estado">Cargando…</div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h6 class="card-title"><i class="bi bi-lightbulb text-warning"></i> Consejos</h6>
+            <ul class="small text-secondary mb-0 ps-3">
+              <li>Tus datos viven cifrados en <code>gestor_datos.enc</code>: no se ven a simple vista.</li>
+              <li>Escribe el correo con un dominio conocido (gmail, outlook…) y usuario y servidor se rellenan solos.</li>
+              <li>Clic en el encabezado para ordenar; la lupa busca en todo.</li>
+              <li>El servidor solo escucha en esta PC (127.0.0.1).</li>
+              <li>Para detenerlo, cierra la ventana de consola que abrió el .bat.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ================= MODAL CUENTA ================= -->
+<div class="modal fade" id="modalCuenta" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="titulo-modal">Nueva cuenta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-2">
+          <label class="form-label small fw-semibold" for="campo-nombre">Nombre de la cuenta *</label>
+          <input type="text" id="campo-nombre" class="form-control">
+        </div>
+        <div class="mb-2">
+          <label class="form-label small fw-semibold" for="campo-correo">Correo</label>
+          <input type="text" id="campo-correo" class="form-control" list="lista-dominios" autocomplete="off">
+          <datalist id="lista-dominios"></datalist>
+        </div>
+        <div class="row g-2 mb-2">
+          <div class="col">
+            <label class="form-label small fw-semibold" for="campo-usuario">Usuario</label>
+            <input type="text" id="campo-usuario" class="form-control" autocomplete="off">
+          </div>
+          <div class="col">
+            <label class="form-label small fw-semibold" for="campo-contrasena">Contraseña</label>
+            <div class="input-group">
+              <input type="password" id="campo-contrasena" class="form-control" autocomplete="off">
+              <button class="btn btn-outline-secondary" id="btn-ver-clave" type="button" title="Mostrar/ocultar"><i class="bi bi-eye"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label small fw-semibold" for="campo-servidor">Servidor (IMAP/SMTP)</label>
+          <input type="text" id="campo-servidor" class="form-control">
+        </div>
+        <div class="mb-1">
+          <label class="form-label small fw-semibold" for="campo-notas">Notas</label>
+          <textarea id="campo-notas" class="form-control" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-guardar"><i class="bi bi-check-lg"></i> Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL CLAVE ================= -->
+<div class="modal fade" id="modalClave" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-key"></i> Cambiar clave de acceso</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <input type="password" id="clave-actual" class="form-control mb-2" placeholder="Clave actual" autocomplete="off">
+        <input type="password" id="clave-nueva2" class="form-control mb-2" placeholder="Nueva clave (mín. 4)" autocomplete="off">
+        <input type="password" id="clave-confirma2" class="form-control" placeholder="Repite la nueva clave" autocomplete="off">
+        <div class="text-danger small d-none mt-2" id="error-clave"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-cambiar-clave"><i class="bi bi-check-lg"></i> Cambiar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <div class="toast-body" id="toast-msg"></div>
+  </div>
+</div>
+
+<script src="assets/bootstrap.bundle.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

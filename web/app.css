@@ -1,0 +1,30 @@
+/* Gestor de Correos - estilos propios (Bootstrap hace el resto) */
+:root {
+  --app-bg: #f4f5f9;   /* fondo suave del tema claro */
+}
+[data-bs-theme="dark"] {
+  --app-bg: #0f1115;   /* fondo del tema oscuro */
+}
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--app-bg);
+}
+
+.navbar {
+  background-color: var(--bs-body-bg);
+}
+
+.tarjeta-login { width: 380px; }
+.icono-grande { font-size: 2.6rem; color: var(--bs-primary); }
+
+.cursor-puntero { cursor: pointer; user-select: none; }
+#tabla th, #tabla td { vertical-align: middle; }
+#tabla thead th { background: var(--bs-secondary-bg); }
+.indicador { font-size: .8em; }
+
+#toast { border-left: 4px solid var(--bs-success); }
+#toast.error { border-left-color: var(--bs-danger); }
+
+.btn-icono { border: 0; }
+.btn-icono:hover { background: var(--bs-secondary-bg); }
