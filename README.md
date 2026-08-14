@@ -2,42 +2,99 @@
 
 Bóveda local y cifrada para tus cuentas de correo: guarda nombre, correo, usuario, contraseña, servidor y notas en un archivo cifrado, con interfaz web amigable.
 
-## Características
+> **100% local y sin dependencias**: la interfaz es web (Bootstrap 5) pero corre en tu propia PC, servida por Python. No hay nube, no hay servidores externos: tus datos nunca salen de tu máquina.
 
-- **Interfaz web** con Bootstrap 5 + Bootstrap Icons (assets 100% locales, funciona sin internet)
-- **Backend Python** solo con biblioteca estándar — cero dependencias, corre en cualquier PC con Python 3
-- **Cifrado real**: ChaCha20 (RFC 8439) + PBKDF2 (200.000 iteraciones) + HMAC de integridad
-- Tabla con columnas centradas y **ordenable** (clic en el encabezado)
-- **Búsqueda instantánea** con autocompletado en el buscador
-- **Autocompletado de dominios** al escribir el correo (gmail, outlook, yahoo…) con relleno automático de usuario y servidor IMAP/SMTP
-- Contraseña con ojo para mostrar/ocultar
-- Copiar correo, exportar CSV, cambiar clave, bloquear
-- **Modo claro/oscuro** (se recuerda la preferencia)
-- El servidor solo escucha en `127.0.0.1` — no accesible desde la red
+---
 
-## Cómo usarlo
+## 📖 Guía de uso
 
-1. `python servidor.py` (en Windows: doble clic en `Iniciar.bat`)
-2. Se abre el navegador en `http://127.0.0.1:8610`
-3. La primera vez creas tu **clave de acceso** — con ella se cifran tus datos. ⚠️ Si la olvidas no hay recuperación (así de seguro es).
+### Requisitos
+- **Python 3** instalado (Windows, macOS o Linux). No instala nada más: usa solo la biblioteca estándar.
+- Un navegador (Chrome, Edge, Firefox…).
 
-## Seguridad
+### Primer arranque
+1. **Windows**: doble clic en `Iniciar.bat` — se abre una consola minimizada (el servidor) y el navegador con la app.
+   **Otros sistemas**: `python servidor.py` desde la carpeta del proyecto.
+2. La app abre en `http://127.0.0.1:8610` (solo tu PC; si el puerto está ocupado usa 8611–8615 automáticamente).
+3. **Primera vez**: te pide crear una **clave de acceso** (mín. 4 caracteres). Con esa clave se cifran tus datos.
+   ⚠️ **Si la olvidas, no hay forma de recuperarlos.** Es la base del diseño: nadie más puede abrir tu bóveda.
 
-- Tus datos viven cifrados en `gestor_datos.enc` (no se leen a simple vista)
-- Clave derivada con PBKDF2-HMAC-SHA256 (200.000 iteraciones), cifrado ChaCha20 verificado contra los vectores oficiales del RFC 8439
-- El servidor solo escucha en localhost (127.0.0.1:8610)
-- Sin dependencias externas: el cifrado usa únicamente la biblioteca estándar de Python
+### Uso diario
+| Acción | Cómo |
+|---|---|
+| Crear cuenta | Botón **+ Nueva cuenta** → llenas los campos → **Guardar** (el formulario se limpia solo para la siguiente) |
+| Editar | Clic en la fila de la tabla (o el lápiz) |
+| Eliminar | Icono 🗑 (pide confirmación) |
+| Buscar | Escribe en la lupa: busca en nombre, correo, usuario, servidor **y notas** |
+| Ordenar | Clic en el encabezado **Cuenta** o **Correo** (segundo clic invierte) |
+| Copiar correo | Icono ⧉ de la fila → queda en el portapapeles |
+| Ver contraseña | Ojo 👁 en el campo Contraseña |
+| Exportar | Botón **CSV** → descarga `mis_cuentas.csv` (abre en Excel) |
+| Cambiar clave | Icono 🔑 |
+| Bloquear | Icono candado → vuelve a pedir la clave |
+| Tema claro/oscuro | Botón 🌙/☀️ de la barra (se recuerda la preferencia) |
 
-## Estructura
+### Autocompletado inteligente
+Escribe un correo con un **dominio conocido** (gmail.com, outlook.com, hotmail.com, yahoo.com, icloud.com, proton.me, zoho.com…) y la app te sugiere el dominio mientras escribes. Al salir del campo, si el dominio es conocido **rellena sola el usuario y el servidor IMAP/SMTP**.
 
+### Detener la app
+Cierra la **ventana de consola** del servidor. (El navegador puede quedar abierto; la app deja de responder al cerrar la consola.)
+
+---
+
+## 📦 Qué archivos mover (copiar la app a otra PC / USB)
+
+La app es **portable**: copia la carpeta a una USB/SD y úsala en cualquier PC con Python 3.
+
+### Obligatorios (sin estos no funciona)
 | Archivo | Función |
 |---|---|
-| `servidor.py` | Backend: servidor local + API JSON |
-| `cifrado.py` | Cifrado ChaCha20/PBKDF2 (incluye vectores de prueba RFC 8439) |
-| `web/` | Interfaz (HTML, CSS, JS) |
-| `assets/` | Bootstrap e iconos (locales) |
-| `Iniciar.bat` | Lanzador para Windows |
+| `servidor.py` | El backend (servidor local + API) |
+| `cifrado.py` | El cifrado ChaCha20/PBKDF2 |
+| `web/` (carpeta completa) | La interfaz (index.html, app.js, app.css) |
+| `assets/` (carpeta completa) | Bootstrap e iconos — **locales**, funciona sin internet |
+| `Iniciar.bat` | Lanzador de Windows (opcional en otros sistemas) |
 
-## Portabilidad
+### Se generan solos (no hace falta copiarlos)
+| Archivo | Qué es |
+|---|---|
+| `gestor_datos.enc` | **Tu bóveda cifrada** — se crea la primera vez que pones tu clave |
+| `gestor_correos.db.bak` | Respaldo de la versión anterior (si migraste), puedes borrarlo |
+| `__pycache__/` | Caché de Python, se regenera, no se copia |
 
-Copia la carpeta a una USB/SD y llévate tus cuentas a cualquier PC con Python 3. Cada carpeta es una bóveda independiente.
+### ¿Y mis datos?
+- **Para empezar de cero** en la otra PC: copia solo los obligatorios y crea la bóveda ahí (con tu clave).
+- **Para llevar tus cuentas**: copia también `gestor_datos.enc` **y recuerda tu clave** — sin la clave la bóveda es ilegible a propósito.
+- Cada carpeta es una **bóveda independiente**: no mezcles `gestor_datos.enc` entre copias distintas.
+
+---
+
+## 🔒 Seguridad
+
+- El servidor solo escucha en **127.0.0.1** (tu PC) — no es accesible desde la red ni desde otros dispositivos.
+- Datos cifrados con **ChaCha20** (RFC 8439, verificado con los vectores oficiales) + clave derivada con **PBKDF2-HMAC-SHA256 (200.000 iteraciones)** + **HMAC** de integridad (detecta clave incorrecta o archivo alterado).
+- El archivo `gestor_datos.enc` no se puede leer a simple vista ni sin tu clave.
+- Cero dependencias externas: el cifrado usa únicamente la biblioteca estándar de Python.
+
+---
+
+## 🛠 Estructura del proyecto
+
+```
+MailVault/
+├── servidor.py        # Backend: servidor local + API JSON
+├── cifrado.py         # Cifrado ChaCha20/PBKDF2 (con vectores RFC 8439 de prueba)
+├── web/               # Interfaz (index.html, app.js, app.css)
+├── assets/            # Bootstrap 5 e Bootstrap Icons (locales)
+├── Iniciar.bat        # Lanzador Windows
+├── LICENSE            # MIT
+└── README.md
+```
+
+---
+
+## ⚖️ Licencia
+
+**MIT License** — libre de usar, modificar y distribuir, incluso comercialmente, siempre que se conserve el aviso de copyright.
+
+Copyright (c) 2026 Luis Martinez · Ver [LICENSE](LICENSE)
