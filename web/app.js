@@ -493,7 +493,7 @@ function abrirGenerador(modo) {
 /* ================= Telegram ================= */
 async function enviarTelegrama(c) {
   try {
-    const r = await api("/api/cuentas/" + c.id + "/telegram", { method: "POST" });
+    await api("/api/cuentas/" + c.id + "/telegram", { method: "POST" });
     mostrarToast("Enviado a Telegram ✓");
   } catch (e) {
     mostrarToast(e.message || "No se pudo enviar", false);
