@@ -347,8 +347,33 @@ function autorellenar() {
 
 /* ================= generador de contrasenas ================= */
 const GEN_DEFAULT = { largo: 16, mayus: true, minus: true, nums: true,
-                      simbolos: true, sinAmbiguos: false };
+                      simbolos: true, sinAmbiguos: false, plataforma: "" };
 const AMBIGUOS = new Set("0O1lI|".split(""));
+
+// Plantillas por plataforma: longitud recomendada + reglas de cada una
+const PLATAFORMAS = {
+  tiktok: {
+    largo: 14,
+    info: "Requisitos TikTok: 8–20 caracteres · al menos una letra y un número",
+  },
+  instagram: {
+    largo: 12,
+    info: "Requisitos Instagram: mínimo 6 caracteres · al menos una letra y un número",
+  },
+  facebook: {
+    largo: 12,
+    info: "Requisitos Facebook: mínimo 6 caracteres",
+  },
+  youtube: {
+    largo: 14,
+    info: "Requisitos YouTube (cuenta Google): mínimo 8 caracteres",
+  },
+  twitch: {
+    largo: 12,
+    info: "Requisitos Twitch: 8–30 caracteres · no debe contener tu nombre de usuario",
+  },
+};
+
 let configGen = { ...GEN_DEFAULT };
 let modoGenerador = "solo"; // "cuenta" si se abrio desde el formulario
 
@@ -422,16 +447,39 @@ function aplicarConfigGenAControles() {
   $("gen-nums").checked = configGen.nums;
   $("gen-simbolos").checked = configGen.simbolos;
   $("gen-ambiguos").checked = configGen.sinAmbiguos;
+  pintarPlataforma();
 }
 
-function refrescarGenerador() {
+function pintarPlataforma() {
+  $("gen-plataforma").value = configGen.plataforma || "";
+  const p = configGen.plataforma && PLATAFORMAS[configGen.plataforma];
+  $("gen-info-plataforma").textContent = p ? p.info : "";
+}
+
+function aplicarPreset() {
+  const id = $("gen-plataforma").value;
+  configGen.plataforma = id;
+  if (id && PLATAFORMAS[id]) {
+    const p = PLATAFORMAS[id];
+    configGen.largo = p.largo;
+    configGen.mayus = configGen.minus = configGen.nums = configGen.simbolos = true;
+    aplicarConfigGenAControles();
+  }
+  refrescarGenerador();
+}
+
+function refrescarGenerador(manual = false) {
   leerControlesGen();
+  if (manual && configGen.plataforma) {
+    configGen.plataforma = ""; // el usuario ajusto algo a mano: sale de la plantilla
+  }
   guardarConfigGen(); // recuerda la configuracion
   const pwd = generarPassword();
   $("gen-resultado").value = pwd;
   const tam = tamanoCharset();
   const bits = tam > 0 ? Math.round(configGen.largo * Math.log2(tam)) : 0;
   $("gen-entropia").textContent = bits > 0 ? "≈ " + bits + " bits de entropía" : "";
+  pintarPlataforma();
 }
 
 function abrirGenerador(modo) {
@@ -472,8 +520,9 @@ function conectarEventos() {
   // Generador de contrasenas
   $("btn-gen-nav").addEventListener("click", () => abrirGenerador("solo"));
   $("btn-generador").addEventListener("click", () => abrirGenerador("cuenta"));
+  $("gen-plataforma").addEventListener("change", aplicarPreset);
   ["gen-largo", "gen-mayus", "gen-minus", "gen-nums", "gen-simbolos", "gen-ambiguos"]
-    .forEach((id) => $(id).addEventListener("input", refrescarGenerador));
+    .forEach((id) => $(id).addEventListener("input", () => refrescarGenerador(true)));
   $("gen-otra").addEventListener("click", refrescarGenerador);
   $("gen-copiar").addEventListener("click", async () => {
     const pwd = $("gen-resultado").value;

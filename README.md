@@ -29,7 +29,7 @@ Bóveda local y cifrada para tus cuentas de correo: guarda nombre, correo, usuar
 | Ordenar | Clic en el encabezado **Cuenta** o **Correo** (segundo clic invierte) |
 | Copiar correo | Icono ⧉ de la fila → queda en el portapapeles |
 | Ver contraseña | Ojo 👁 en el campo Contraseña |
-| **Generar contraseña** | Botón 🎲 de la barra superior (uso suelto) o el 🎲 junto al campo Contraseña (te la aplica directo). Elige longitud y tipos de caracteres; la configuración se recuerda |
+| **Generar contraseña** | Botón 🎲 de la barra superior (uso suelto) o el 🎲 junto al campo Contraseña (te la aplica directo). Elige longitud y tipos de caracteres, o usa una **plantilla por plataforma** (TikTok, Instagram, Facebook, YouTube, Twitch) que aplica la longitud recomendada según los requisitos de cada una; la configuración se recuerda |
 | Exportar | Botón **CSV** → descarga `mis_cuentas.csv` (abre en Excel) |
 | Cambiar clave | Icono 🔑 |
 | Bloquear | Icono candado → vuelve a pedir la clave |

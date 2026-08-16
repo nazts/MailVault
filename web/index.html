@@ -164,6 +164,17 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
+        <label class="form-label fw-semibold" for="gen-plataforma">Plantilla para plataforma</label>
+        <select class="form-select mb-1" id="gen-plataforma">
+          <option value="">Personalizada (elige tú)</option>
+          <option value="tiktok">TikTok</option>
+          <option value="instagram">Instagram</option>
+          <option value="facebook">Facebook</option>
+          <option value="youtube">YouTube</option>
+          <option value="twitch">Twitch</option>
+        </select>
+        <div class="small text-secondary mb-3" id="gen-info-plataforma"></div>
+
         <div class="d-flex justify-content-between align-items-center">
           <label class="form-label fw-semibold mb-0" for="gen-largo">Longitud: <span id="gen-largo-valor" class="badge text-bg-primary">16</span></label>
           <span class="small text-secondary" id="gen-entropia"></span>
