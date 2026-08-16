@@ -164,6 +164,7 @@ function render() {
     td3.className = "text-center text-nowrap";
     td3.append(
       botonIcono("bi-pencil", "Editar", () => abrirEditar(c.id)),
+      botonIcono("bi-send", "Enviar a Telegram", () => enviarTelegrama(c)),
       botonIcono("bi-copy", "Copiar correo", () => copiarCorreo(c)),
       botonIcono("bi-trash3", "Eliminar", () => eliminarCuenta(c))
     );
@@ -489,6 +490,93 @@ function abrirGenerador(modo) {
   bootstrap.Modal.getOrCreateInstance($("modalGenerador")).show();
 }
 
+/* ================= Telegram ================= */
+async function enviarTelegrama(c) {
+  try {
+    const r = await api("/api/cuentas/" + c.id + "/telegram", { method: "POST" });
+    mostrarToast("Enviado a Telegram ✓");
+  } catch (e) {
+    mostrarToast(e.message || "No se pudo enviar", false);
+  }
+}
+
+async function cargarEstadoTelegram() {
+  try {
+    const e = await api("/api/telegram/estado");
+    $("tg-token").value = "";
+    $("tg-token").placeholder = e.token_mostrado || "123456789:AAH...";
+    $("tg-chat").value = e.chat_id || "";
+    const estado = $("tg-estado");
+    if (e.error) {
+      estado.className = "alert alert-danger small py-1 mb-1";
+      estado.textContent = "Estado: error — " + e.error;
+    } else if (e.activo) {
+      estado.className = "alert alert-success small py-1 mb-1";
+      estado.textContent = "Estado: bot activo ✓";
+    } else if (e.token_configurado) {
+      estado.className = "alert alert-warning small py-1 mb-1";
+      estado.textContent = "Estado: token guardado, bot en espera de desbloqueo";
+    } else {
+      estado.className = "alert alert-info small py-1 mb-1";
+      estado.textContent = "Estado: sin configurar";
+    }
+    const hint = $("tg-ultimo-chat");
+    if (e.ultimo_chat) {
+      hint.textContent = "Último chat que escribió al bot: " +
+        (e.ultimo_nombre || "?") + " (" + e.ultimo_chat + ")";
+      $("tg-autorizar").disabled = false;
+    } else {
+      hint.textContent = "Sin mensajes recibidos todavía. Escríbele algo a tu bot y aparecerá aquí su chat.";
+      $("tg-autorizar").disabled = true;
+    }
+  } catch (e) {
+    mostrarToast(e.message, false);
+  }
+}
+
+async function guardarConfigTelegram() {
+  const body = { chat_id: $("tg-chat").value.trim() };
+  if ($("tg-token").value.trim()) {
+    body.token = $("tg-token").value.trim();
+  }
+  try {
+    await api("/api/telegram/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    mostrarToast("Configuración guardada ✓");
+    cargarEstadoTelegram();
+  } catch (e) {
+    mostrarToast(e.message, false);
+  }
+}
+
+async function probarTelegram() {
+  try {
+    const r = await api("/api/telegram/probar", { method: "POST" });
+    if (r.ok) {
+      mostrarToast("Mensaje de prueba enviado ✓");
+    } else {
+      mostrarToast(r.error || "No se pudo enviar", false);
+    }
+  } catch (e) {
+    mostrarToast(e.message, false);
+  }
+}
+
+function usarChatDetectado() {
+  // el id detectado se pide al servidor: reutilizamos el estado ya cargado
+  api("/api/telegram/estado").then((est) => {
+    if (est.ultimo_chat) {
+      $("tg-chat").value = String(est.ultimo_chat);
+      guardarConfigTelegram();
+    } else {
+      mostrarToast("Aún no hay chat detectado: escríbele a tu bot", false);
+    }
+  }).catch((err) => mostrarToast(err.message, false));
+}
+
 /* ================= tema claro/oscuro ================= */
 function temaActual() {
   return document.documentElement.getAttribute("data-bs-theme") || "light";
@@ -513,6 +601,13 @@ function conectarEventos() {
   });
   $("btn-cambiar-clave").addEventListener("click", cambiarClave);
   $("btn-cerrar").addEventListener("click", cerrarSesion);
+  $("btn-config").addEventListener("click", () => {
+    bootstrap.Modal.getOrCreateInstance($("modalConfig")).show();
+    cargarEstadoTelegram();
+  });
+  $("tg-guardar").addEventListener("click", guardarConfigTelegram);
+  $("tg-probar").addEventListener("click", probarTelegram);
+  $("tg-autorizar").addEventListener("click", usarChatDetectado);
   $("btn-tema").addEventListener("click", () => {
     aplicarTema(temaActual() === "dark" ? "light" : "dark");
   });

@@ -16,7 +16,7 @@ Bóveda local y cifrada para tus cuentas de correo: guarda nombre, correo, usuar
 
 ### Primer arranque
 1. **Windows**: doble clic en `Iniciar.bat` — se abre una consola minimizada (el servidor) y el navegador con la app.
-   **Otros sistemas**: `python servidor.py` desde la carpeta del proyecto.
+   **Linux / macOS**: `chmod +x Iniciar.sh && ./Iniciar.sh` (o `python3 servidor.py`).
 2. La app abre en `http://127.0.0.1:8610` (solo tu PC; si el puerto está ocupado usa 8611–8615 automáticamente).
 3. **Primera vez**: te pide crear una **clave de acceso** (mín. 4 caracteres). Con esa clave se cifran tus datos.
    ⚠️ **Si la olvidas, no hay forma de recuperarlos.** Es la base del diseño: nadie más puede abrir tu bóveda.
@@ -32,6 +32,8 @@ Bóveda local y cifrada para tus cuentas de correo: guarda nombre, correo, usuar
 | Copiar correo | Icono ⧉ de la fila → queda en el portapapeles |
 | Ver contraseña | Ojo 👁 en el campo Contraseña |
 | **Generar contraseña** | Botón 🎲 de la barra superior (uso suelto) o el 🎲 junto al campo Contraseña (te la aplica directo). Elige longitud y tipos de caracteres, o usa una **plantilla por plataforma** (TikTok, Instagram, Facebook, YouTube, Twitch) que aplica la longitud recomendada según los requisitos de cada una; la configuración se recuerda |
+| **Enviar cuenta a Telegram** | Icono 📤 de la fila → te llega la cuenta (con contraseña) a tu chat |
+| Configurar bot | Engranaje ⚙️ → pega el token de tu bot (de @BotFather) y tu chat ID (o "Usar detectado") |
 | Exportar | Botón **CSV** → descarga `mis_cuentas.csv` (abre en Excel) |
 | Cambiar clave | Icono 🔑 |
 | Bloquear | Icono candado → vuelve a pedir la clave |
@@ -39,6 +41,18 @@ Bóveda local y cifrada para tus cuentas de correo: guarda nombre, correo, usuar
 
 ### Autocompletado inteligente
 Escribe un correo con un **dominio conocido** (gmail.com, outlook.com, hotmail.com, yahoo.com, icloud.com, proton.me, zoho.com…) y la app te sugiere el dominio mientras escribes. Al salir del campo, si el dominio es conocido **rellena sola el usuario y el servidor IMAP/SMTP**.
+
+### Bot de Telegram (guardar / ver desde el móvil)
+1. Crea un bot con **@BotFather** en Telegram y copia su token.
+2. En MailVault: **⚙️ Configuración → Telegram** → pega el token y guarda.
+3. Escríbele cualquier cosa a tu bot desde Telegram → MailVault detecta tu chat y te muestra el ID → pulsa **"Usar detectado"** y guarda.
+4. Comandos del bot:
+   - `/lista` — ver tus cuentas
+   - `/ver gmail` (o `/ver 3`) — busca y muestra una cuenta **con su contraseña**
+   - `/nueva Gmail | yo@gmail.com | usuario | contraseña | servidor | notas` — guardar desde Telegram
+   - `/ayuda` — lista de comandos
+
+> 🔒 El bot **solo responde al chat que autorices** y funciona mientras MailVault esté desbloqueado. El token se guarda **cifrado** dentro de tu bóveda.
 
 ### Detener la app
 Cierra la **ventana de consola** del servidor. (El navegador puede quedar abierto; la app deja de responder al cerrar la consola.)
@@ -56,7 +70,8 @@ La app es **portable**: copia la carpeta a una USB/SD y úsala en cualquier PC c
 | `cifrado.py` | El cifrado ChaCha20/PBKDF2 |
 | `web/` (carpeta completa) | La interfaz (index.html, app.js, app.css) |
 | `assets/` (carpeta completa) | Bootstrap e iconos — **locales**, funciona sin internet |
-| `Iniciar.bat` | Lanzador de Windows (opcional en otros sistemas) |
+| `Iniciar.bat` | Lanzador de Windows |
+| `Iniciar.sh` | Lanzador de **Linux/macOS** (`chmod +x Iniciar.sh && ./Iniciar.sh`) |
 
 ### Se generan solos (no hace falta copiarlos)
 | Archivo | Qué es |

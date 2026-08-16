@@ -59,6 +59,7 @@
         <button class="btn btn-sm btn-outline-secondary" id="btn-exportar" type="button" title="Exportar CSV"><i class="bi bi-download"></i> CSV</button>
         <button class="btn btn-sm btn-outline-secondary" id="btn-clave" type="button" title="Cambiar clave"><i class="bi bi-key"></i></button>
         <button class="btn btn-sm btn-outline-secondary" id="btn-cerrar" type="button" title="Bloquear"><i class="bi bi-lock"></i></button>
+        <button class="btn btn-sm btn-outline-secondary" id="btn-config" type="button" title="Configuración (Telegram)"><i class="bi bi-gear"></i></button>
         <button class="btn btn-sm btn-primary" id="btn-nueva" type="button"><i class="bi bi-person-plus"></i> Nueva cuenta</button>
       </div>
     </div>
@@ -78,7 +79,7 @@
                 <tr>
                   <th class="text-center cursor-puntero" data-col="nombre">Cuenta <span class="indicador"></span></th>
                   <th class="text-center cursor-puntero" data-col="correo">Correo <span class="indicador"></span></th>
-                  <th class="text-center" style="width: 130px">Acciones</th>
+                  <th class="text-center" style="width: 165px">Acciones</th>
                 </tr>
               </thead>
               <tbody id="tbody-cuentas"></tbody>
@@ -247,6 +248,43 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-primary" id="btn-cambiar-clave"><i class="bi bi-check-lg"></i> Cambiar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL CONFIGURACION (TELEGRAM) ================= -->
+<div class="modal fade" id="modalConfig" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-gear"></i> Configuración</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <h6 class="fw-semibold"><i class="bi bi-telegram text-primary"></i> Bot de Telegram</h6>
+        <p class="small text-secondary">
+          Guarda o consulta tus contraseñas desde Telegram. El bot responde
+          <b>solo al chat que autorices</b> y funciona mientras MailVault esté
+          desbloqueado. Crea tu bot con <code>@BotFather</code> en Telegram.
+        </p>
+        <label class="form-label small fw-semibold" for="tg-token">API Key del bot (token)</label>
+        <input type="password" id="tg-token" class="form-control mb-2" placeholder="123456789:AAH..." autocomplete="off">
+        <label class="form-label small fw-semibold" for="tg-chat">Chat ID autorizado</label>
+        <div class="input-group mb-1">
+          <input type="text" id="tg-chat" class="form-control" placeholder="Ej: 123456789" autocomplete="off">
+          <button class="btn btn-outline-secondary" id="tg-autorizar" type="button" title="Usar el chat detectado"><i class="bi bi-magic"></i> Usar detectado</button>
+        </div>
+        <div class="small text-secondary mb-2" id="tg-ultimo-chat">Sin mensajes recibidos todavía. Escríbele algo a tu bot y aparecerá aquí su chat.</div>
+        <div class="alert alert-info small py-1 mb-1" id="tg-estado">Estado: sin configurar</div>
+        <div class="small text-secondary">
+          Comandos del bot: <code>/lista</code> · <code>/ver texto</code> ·
+          <code>/nueva nombre | correo | usuario | contraseña | servidor | notas</code>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" id="tg-probar"><i class="bi bi-send"></i> Probar</button>
+        <button type="button" class="btn btn-primary" id="tg-guardar"><i class="bi bi-check-lg"></i> Guardar</button>
       </div>
     </div>
   </div>
