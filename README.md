@@ -4,6 +4,8 @@ Bóveda local y cifrada para tus cuentas de correo: guarda nombre, correo, usuar
 
 > **100% local y sin dependencias**: la interfaz es web (Bootstrap 5) pero corre en tu propia PC, servida por Python. No hay nube, no hay servidores externos: tus datos nunca salen de tu máquina.
 
+**Hecho por [naztwo](https://github.com/nazts)** ⚡
+
 ---
 
 ## 📖 Guía de uso
@@ -100,4 +102,4 @@ MailVault/
 
 **MIT License** — libre de usar, modificar y distribuir, incluso comercialmente, siempre que se conserve el aviso de copyright.
 
-Copyright (c) 2026 Luis Martinez · Ver [LICENSE](LICENSE)
+Copyright (c) 2026 naztwo · Ver [LICENSE](LICENSE)
