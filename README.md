@@ -73,8 +73,10 @@ La app es **portable**: copia la carpeta a una USB/SD y úsala en cualquier PC c
 ## 🔒 Seguridad
 
 - El servidor solo escucha en **127.0.0.1** (tu PC) — no es accesible desde la red ni desde otros dispositivos.
-- Datos cifrados con **ChaCha20** (RFC 8439, verificado con los vectores oficiales) + clave derivada con **PBKDF2-HMAC-SHA256 (200.000 iteraciones)** + **HMAC** de integridad (detecta clave incorrecta o archivo alterado).
+- Datos cifrados estilo **cebolla v2**: de 3 a 5 capas de **ChaCha20** (RFC 8439, verificado con los vectores oficiales), cada capa con una clave derivada de la anterior y un nonce propio, aplicadas en **orden aleatorio** (la permutación se guarda para pelarlas en orden inverso). La clave maestra se deriva con **PBKDF2-HMAC-SHA256 (200.000 iteraciones)** y un **HMAC** final detecta clave incorrecta o archivo alterado.
+- Cada guardado re-cifra con **nuevas capas, nuevos nonces y nuevo orden** — dos archivos de la misma bóveda nunca son iguales.
 - El archivo `gestor_datos.enc` no se puede leer a simple vista ni sin tu clave.
+- Las cajas creadas con la versión anterior (v1) se migran solas al formato cebolla al abrirlas.
 - Cero dependencias externas: el cifrado usa únicamente la biblioteca estándar de Python.
 
 ---

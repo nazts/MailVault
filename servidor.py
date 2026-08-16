@@ -76,6 +76,9 @@ class Gestor:
             datos = cifrado.descifrar_archivo(RUTA_DATOS, clave)
             self.cuentas = json.loads(datos.decode("utf-8"))
             self.clave = clave
+            # si la caja aun estaba en formato v1, se migra a cebolla v2
+            if cifrado.formato_archivo(RUTA_DATOS) != "v2":
+                self._guardar()
 
     def cerrar(self):
         with self.lock:
