@@ -55,6 +55,7 @@
       <span class="badge border text-secondary me-auto" id="lbl-total">0 cuentas</span>
       <div class="d-flex gap-2">
         <button class="btn btn-sm btn-outline-secondary" id="btn-tema" type="button" title="Cambiar tema (claro/oscuro)"><i class="bi bi-moon-stars"></i></button>
+        <button class="btn btn-sm btn-outline-secondary" id="btn-gen-nav" type="button" title="Generador de contraseñas"><i class="bi bi-dice-5"></i></button>
         <button class="btn btn-sm btn-outline-secondary" id="btn-exportar" type="button" title="Exportar CSV"><i class="bi bi-download"></i> CSV</button>
         <button class="btn btn-sm btn-outline-secondary" id="btn-clave" type="button" title="Cambiar clave"><i class="bi bi-key"></i></button>
         <button class="btn btn-sm btn-outline-secondary" id="btn-cerrar" type="button" title="Bloquear"><i class="bi bi-lock"></i></button>
@@ -133,6 +134,7 @@
             <div class="input-group">
               <input type="password" id="campo-contrasena" class="form-control" autocomplete="off">
               <button class="btn btn-outline-secondary" id="btn-ver-clave" type="button" title="Mostrar/ocultar"><i class="bi bi-eye"></i></button>
+              <button class="btn btn-outline-secondary" id="btn-generador" type="button" title="Generar contraseña"><i class="bi bi-dice-5"></i></button>
             </div>
           </div>
         </div>
@@ -148,6 +150,70 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-primary" id="btn-guardar"><i class="bi bi-check-lg"></i> Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL GENERADOR DE CONTRASEÑAS ================= -->
+<div class="modal fade" id="modalGenerador" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-dice-5"></i> Generador de contraseñas</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="form-label fw-semibold mb-0" for="gen-largo">Longitud: <span id="gen-largo-valor" class="badge text-bg-primary">16</span></label>
+          <span class="small text-secondary" id="gen-entropia"></span>
+        </div>
+        <input type="range" class="form-range mb-3" id="gen-largo" min="6" max="32" step="1">
+
+        <div class="row g-2 mb-1">
+          <div class="col-sm-6">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="gen-mayus" checked>
+              <label class="form-check-label" for="gen-mayus">Mayúsculas (A-Z)</label>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="gen-minus" checked>
+              <label class="form-check-label" for="gen-minus">Minúsculas (a-z)</label>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="gen-nums" checked>
+              <label class="form-check-label" for="gen-nums">Números (0-9)</label>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="gen-simbolos" checked>
+              <label class="form-check-label" for="gen-simbolos">Símbolos (!@#$%…)</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-check form-switch mt-1">
+          <input class="form-check-input" type="checkbox" id="gen-ambiguos">
+          <label class="form-check-label" for="gen-ambiguos">Evitar caracteres confusos (0 O 1 l I |)</label>
+        </div>
+
+        <hr>
+        <div class="input-group">
+          <input type="text" id="gen-resultado" class="form-control font-monospace" readonly>
+          <button class="btn btn-outline-secondary" id="gen-copiar" type="button" title="Copiar"><i class="bi bi-clipboard"></i></button>
+          <button class="btn btn-outline-secondary" id="gen-otra" type="button" title="Generar otra"><i class="bi bi-dice-5"></i></button>
+        </div>
+        <div class="small text-secondary mt-2">
+          <i class="bi bi-info-circle"></i> La configuración se recuerda para la próxima vez. Generadas con aleatoriedad criptográfica.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" id="gen-usar"><i class="bi bi-check-lg"></i> Usar esta contraseña</button>
       </div>
     </div>
   </div>

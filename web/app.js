@@ -345,6 +345,102 @@ function autorellenar() {
   }
 }
 
+/* ================= generador de contrasenas ================= */
+const GEN_DEFAULT = { largo: 16, mayus: true, minus: true, nums: true,
+                      simbolos: true, sinAmbiguos: false };
+const AMBIGUOS = new Set("0O1lI|".split(""));
+let configGen = { ...GEN_DEFAULT };
+let modoGenerador = "solo"; // "cuenta" si se abrio desde el formulario
+
+function cargarConfigGen() {
+  try {
+    const guardado = JSON.parse(localStorage.getItem("genConfig") || "null");
+    if (guardado) configGen = { ...GEN_DEFAULT, ...guardado };
+  } catch (e) { /* valores por defecto */ }
+}
+
+function guardarConfigGen() {
+  localStorage.setItem("genConfig", JSON.stringify(configGen));
+}
+
+function randInt(max) {
+  const a = new Uint32Array(1);
+  crypto.getRandomValues(a);
+  return a[0] % max;
+}
+
+function generarPassword() {
+  let conjuntos = [];
+  if (configGen.mayus) conjuntos.push("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  if (configGen.minus) conjuntos.push("abcdefghijklmnopqrstuvwxyz");
+  if (configGen.nums) conjuntos.push("0123456789");
+  if (configGen.simbolos) conjuntos.push("!@#$%^&*()-_=+[]{};:,.<>?");
+  if (configGen.sinAmbiguos) {
+    conjuntos = conjuntos
+      .map((s) => s.split("").filter((c) => !AMBIGUOS.has(c)).join(""))
+      .filter((s) => s.length > 0);
+  }
+  if (!conjuntos.length) return "";
+  const todos = conjuntos.join("");
+  const pwd = conjuntos.map((c) => c[randInt(c.length)]); // uno de cada tipo
+  while (pwd.length < configGen.largo) {
+    pwd.push(todos[randInt(todos.length)]);
+  }
+  for (let i = pwd.length - 1; i > 0; i--) { // mezcla
+    const j = randInt(i + 1);
+    [pwd[i], pwd[j]] = [pwd[j], pwd[i]];
+  }
+  return pwd.join("");
+}
+
+function tamanoCharset() {
+  let s = "";
+  if (configGen.mayus) s += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  if (configGen.minus) s += "abcdefghijklmnopqrstuvwxyz";
+  if (configGen.nums) s += "0123456789";
+  if (configGen.simbolos) s += "!@#$%^&*()-_=+[]{};:,.<>?";
+  if (configGen.sinAmbiguos) {
+    s = s.split("").filter((c) => !AMBIGUOS.has(c)).join("");
+  }
+  return s.length;
+}
+
+function leerControlesGen() {
+  configGen.largo = parseInt($("gen-largo").value, 10) || 16;
+  configGen.mayus = $("gen-mayus").checked;
+  configGen.minus = $("gen-minus").checked;
+  configGen.nums = $("gen-nums").checked;
+  configGen.simbolos = $("gen-simbolos").checked;
+  configGen.sinAmbiguos = $("gen-ambiguos").checked;
+}
+
+function aplicarConfigGenAControles() {
+  $("gen-largo").value = configGen.largo;
+  $("gen-largo-valor").textContent = configGen.largo;
+  $("gen-mayus").checked = configGen.mayus;
+  $("gen-minus").checked = configGen.minus;
+  $("gen-nums").checked = configGen.nums;
+  $("gen-simbolos").checked = configGen.simbolos;
+  $("gen-ambiguos").checked = configGen.sinAmbiguos;
+}
+
+function refrescarGenerador() {
+  leerControlesGen();
+  guardarConfigGen(); // recuerda la configuracion
+  const pwd = generarPassword();
+  $("gen-resultado").value = pwd;
+  const tam = tamanoCharset();
+  const bits = tam > 0 ? Math.round(configGen.largo * Math.log2(tam)) : 0;
+  $("gen-entropia").textContent = bits > 0 ? "≈ " + bits + " bits de entropía" : "";
+}
+
+function abrirGenerador(modo) {
+  modoGenerador = modo || "solo";
+  aplicarConfigGenAControles();
+  refrescarGenerador();
+  bootstrap.Modal.getOrCreateInstance($("modalGenerador")).show();
+}
+
 /* ================= tema claro/oscuro ================= */
 function temaActual() {
   return document.documentElement.getAttribute("data-bs-theme") || "light";
@@ -371,6 +467,32 @@ function conectarEventos() {
   $("btn-cerrar").addEventListener("click", cerrarSesion);
   $("btn-tema").addEventListener("click", () => {
     aplicarTema(temaActual() === "dark" ? "light" : "dark");
+  });
+
+  // Generador de contrasenas
+  $("btn-gen-nav").addEventListener("click", () => abrirGenerador("solo"));
+  $("btn-generador").addEventListener("click", () => abrirGenerador("cuenta"));
+  ["gen-largo", "gen-mayus", "gen-minus", "gen-nums", "gen-simbolos", "gen-ambiguos"]
+    .forEach((id) => $(id).addEventListener("input", refrescarGenerador));
+  $("gen-otra").addEventListener("click", refrescarGenerador);
+  $("gen-copiar").addEventListener("click", async () => {
+    const pwd = $("gen-resultado").value;
+    if (!pwd) return;
+    await navigator.clipboard.writeText(pwd);
+    mostrarToast("Contraseña copiada ✓");
+  });
+  $("gen-usar").addEventListener("click", () => {
+    const pwd = $("gen-resultado").value;
+    if (!pwd) return;
+    if (modoGenerador === "cuenta") {
+      $("campo-contrasena").value = pwd;
+      bootstrap.Modal.getInstance($("modalGenerador")).hide();
+      mostrarToast("Contraseña aplicada a la cuenta ✓");
+    } else {
+      navigator.clipboard.writeText(pwd)
+        .then(() => mostrarToast("Contraseña copiada ✓"))
+        .catch(() => mostrarToast("No se pudo copiar", false));
+    }
   });
   $("btn-ver-clave").addEventListener("click", () => {
     const i = $("campo-contrasena");
@@ -414,6 +536,7 @@ function conectarEventos() {
 /* ================= arranque ================= */
 async function init() {
   conectarEventos();
+  cargarConfigGen(); // configuración recordada del generador
   aplicarTema(temaActual()); // deja el icono del boton segun el tema guardado
   try {
     const est = await api("/api/estado");
